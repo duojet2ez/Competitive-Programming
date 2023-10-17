@@ -2,33 +2,45 @@
 #include<fstream>
 #include<vector>
 using namespace std;
-
 ifstream fin("factory.in");
-ofstream fout("factory.out"); 
+ofstream fout("factory.out");
 
-//use a stack for O(n) time complexity insert at start is costly for vector
+vector<int> adjList[101];
+int allVisited = 0; 
 
-int main() {
-
-	int n; 
-	fin >> n;
-	vector<int> adjList[101]; 
-	for (int i = 0; i < 101; i++)
-	{
-		adjList[i].push_back(-1); 
+void dfs(int node, int destination) {
+	if (node == destination) { allVisited++; return; }
+	for (int i = 0; i < adjList[node].size(); i++) {
+		int neighbor = adjList[node][i]; 
+		dfs(neighbor, destination); 
 	}
-	for (int i = 0; i < n - 1; i++) {
-		int first; int second; fin >> first >> second;
-		adjList[first].insert(adjList[first].begin(), second); 
+}
+
+
+int main() {	
+	int n; fin >> n;
+
+	for (int i = 1; i < n; i++) {
+		int a, b; fin >> a >> b;
+		adjList[a].push_back(b); 
 	}
 
-	int ans = -1; 
+	//go through check range of adjList (size of n) for a size = 0  and then run dfs on every node to that making sure all connect if they do return i if not return -1
 	for (int i = 1; i <= n; i++) {
-		if (adjList[i][0] == -1) {
-			ans = i; 
-			break;
+		if (adjList[i].size() == 0) {
+			//run dfs on everything that is not i
+			for (int j = 1; j <= n; j++) {
+				if (j == i) continue;
+				dfs(j, i); 
+			}
+			if (allVisited == n - 1) { fout << i << '\n';  return 1; }
+			else break; 
 		}
 	}
-	fout << ans << '\n';
-	return 0; 
+	fout << -1 << '\n';    
+
+	return 0;
 }
+
+
+//for usaco grading don't need to reset globals same for CF. Leetcode must reset
